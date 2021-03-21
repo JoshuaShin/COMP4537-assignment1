@@ -1,3 +1,6 @@
+let questions = [];
+let initialQuestionNumbers = new Set();
+
 function questionHTML(question) {
   return `
         <div class="questionDiv">
@@ -65,29 +68,28 @@ function getQuestionsFromDB() {
       let responses = JSON.parse(this.responseText);
       console.log(responses);
       responses.forEach((question) => {
-        ++questionCount;
+        questions.push(question);
+        initialQuestionNumbers.add(question.questionNumber);
         appendQuestionToBody(question);
       });
+      loadedLength = questions.length;
     }
   };
 }
 
-function loadQuestions() {
-  // JSON.parse(localStorage.getItem("questions")).forEach((question) => {
-  //   ++questionCount;
-  //   appendQuestionToBody(question);
-  // });
-  getQuestionsFromDB();
-}
-
-function postQuestionsToDB(questions) {
+function postQuestionsToDB() {
   questions.forEach((question) => {
     const xhttp = new XMLHttpRequest();
-    const url =
-      "https://www.jsshin.com/COMP4537/labs/quiz/" +
-      `?question="${question.q}"&answer1=${question.a1}&answer2=${question.a2}&answer3=${question.a3}&answer4=${question.a4}&answerIndex=${question.answerIndex}`;
-    console.log(url);
-    xhttp.open("POST", url);
+    if (initialQuestionNumbers.has(String(question.questionNumber))) {
+      const url = "https://www.jsshin.com/COMP4537/labs/quiz/" +
+      `?question="${question.q}"&answer1="${question.a1}"&answer2="${question.a2}"&answer3="${question.a3}"&answer4="${question.a4}"&answerIndex=${question.answerIndex}&id=${question.questionNumber}`;
+      console.log(url);
+      xhttp.open("PUT", url);
+    } else {
+      const url = "https://www.jsshin.com/COMP4537/labs/quiz/" +
+      `?question="${question.q}"&answer1="${question.a1}"&answer2="${question.a2}"&answer3="${question.a3}"&answer4="${question.a4}"&answerIndex=${question.answerIndex}`;
+      xhttp.open("POST", url);
+    }
     xhttp.send();
     xhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
@@ -97,36 +99,53 @@ function postQuestionsToDB(questions) {
   });
 }
 
+function deleteQuestionFromDB(question) {
+  const xhttp = new XMLHttpRequest();
+  const url =
+  "https://www.jsshin.com/COMP4537/labs/quiz/" +
+  `?id=${question.questionNumber}`;
+  xhttp.open("POST", url);
+  xhttp.send();
+  xhttp.onreadystatechange = function () {
+    if (this.readyState == 4 && this.status == 200) {
+      console.log(this.responseText);
+    }
+  };
+}
+
 function saveQuestions() {
-  const questions = document.getElementsByClassName("question");
+  updateQuestions();
+  postQuestionsToDB();
+}
+
+function updateQuestions() {
+  const qs = document.getElementsByClassName("question");
   const a1s = document.getElementsByClassName("a1");
   const a2s = document.getElementsByClassName("a2");
   const a3s = document.getElementsByClassName("a3");
   const a4s = document.getElementsByClassName("a4");
 
-  const formattedQuestions = [];
-  for (let i = 0; i < questions.length; i++) {
-    formattedQuestions.push(
+  const updatedQuestions = [];
+  for (let i = 0; i < qs.length; i++) {
+    updatedQuestions.push(
       new Question(
-        i + 1,
-        questions[i].value,
-        a1s[i].value,
-        a2s[i].value,
-        a3s[i].value,
-        a4s[i].value,
-        document.querySelector(`input[name="radio-${i + 1}"]:checked`)?.value
+        questions[i].questionNumber,
+        qs[i].value,
+        a1s[i].value || "",
+        a2s[i].value || "",
+        a3s[i].value || "",
+        a4s[i].value || "",
+        document.querySelector(`input[name="radio-${questions[i].questionNumber}"]:checked`)?.value || 0
       )
     );
   }
-  console.log(formattedQuestions);
-  postQuestionsToDB(formattedQuestions);
-  // localStorage.setItem("questions", []);
-  // localStorage.setItem("questions", JSON.stringify(formattedQuestions));
+  questions = updatedQuestions;
 }
 
 const onAddBtn = () => {
-  saveQuestions();
-  appendQuestionToBody(new Question(`${++questionCount}`));
+  const question = new Question(questions.length + 1);
+  questions.push(question);
+  appendQuestionToBody(question);
 };
 
 const onSaveBtn = () => {
@@ -134,38 +153,22 @@ const onSaveBtn = () => {
 };
 
 const onDeleteBtn = () => {
-  const questions = document.getElementsByClassName("question");
-  const a1s = document.getElementsByClassName("a1");
-  const a2s = document.getElementsByClassName("a2");
-  const a3s = document.getElementsByClassName("a3");
-  const a4s = document.getElementsByClassName("a4");
+  updateQuestions();
 
-  const formattedQuestions = [];
-  for (let i = 0; i < questions.length; i++) {
-    formattedQuestions.push(
-      new Question(
-        i + 1,
-        questions[i].value,
-        a1s[i].value,
-        a2s[i].value,
-        a3s[i].value,
-        a4s[i].value,
-        document.querySelector(`input[name="radio-${i + 1}"]:checked`)?.value
-      )
-    );
-  }
+  // Update database
+  const deletedQuestion = questions.pop();
+  deleteQuestionFromDB(deletedQuestion);
 
-  formattedQuestions.pop();
-  --questionCount;
-
+  // Update visually
   document.getElementById("admin-label").innerHTML = "";
-  formattedQuestions.forEach((question) => {
+  let initialQuestionNumbers = new Set();
+  questions.forEach((question) => {
+    initialQuestionNumbers.add(question.questionNumber);
     appendQuestionToBody(question);
   });
 };
 
-let questionCount = 0;
-loadQuestions();
+getQuestionsFromDB();
 document.getElementById("questionAddBtn").onclick = onAddBtn;
 document.getElementById("questionSaveBtn").onclick = onSaveBtn;
 document.getElementById("questionDeleteBtn").onclick = onDeleteBtn;

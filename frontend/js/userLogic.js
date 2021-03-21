@@ -32,7 +32,7 @@ function appendQuestionToBody(question) {
 
 function getQuestionsFromDB() {
     const xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "https://www.jsshin.com/COMP4537/labs/5/app/");
+    xhttp.open("GET", "https://www.jsshin.com/COMP4537/labs/quiz/");
     xhttp.send();
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -60,7 +60,7 @@ const submitBtn = () => {
   let message = "";
   for (let i = 0; i < questions.length; i++) {
     if (
-      document.querySelector(`input[name="radio-${i + 1}"]:checked`)?.value !=
+      document.querySelector(`input[name="radio-${questions[i].questionNumber}"]:checked`)?.value !=
       questions[i].answerIndex
     ) {
       message += `Question ${questions[i].questionNumber} is wrong.\n`;

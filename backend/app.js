@@ -1,4 +1,4 @@
-let http = require('http');
+let http = require("http");
 let url = require("url");
 
 const handleGet = (response, connection) => {
@@ -10,10 +10,10 @@ const handleGet = (response, connection) => {
             names += "{";
             names = names.concat('"questionNumber": "' + result[i].id + '",\n');
             names = names.concat('"q": "' + result[i].question + '",\n');
-            names = names.concat('"a1": ' + result[i].answer1 + ",\n");
-            names = names.concat('"a2": ' + result[i].answer2 + ",\n");
-            names = names.concat('"a3": ' + result[i].answer3 + ",\n");
-            names = names.concat('"a4": ' + result[i].answer4 + ",\n");
+            names = names.concat('"a1": "' + result[i].answer1 + '",\n');
+            names = names.concat('"a2": "' + result[i].answer2 + '",\n');
+            names = names.concat('"a3": "' + result[i].answer3 + '",\n');
+            names = names.concat('"a4": "' + result[i].answer4 + '",\n');
             names = names.concat('"answerIndex": ' + result[i].answerIndex + "\n");
             names += "},";
         }
@@ -47,7 +47,7 @@ const handlePostNew = (parsedURL, response, connection) => {
                 + parsedURL.query["answer3"] + ", "
                 + parsedURL.query["answer4"] + ", "
                 + parsedURL.query["answerIndex"] + ")";
-        connection.query(sql, (err, result) => {
+    connection.query(sql, (err, result) => {
         if (err) throw err;
         console.log("1 record inserted");
         response.writeHead(200, {'Content-type': 'text/html', "Access-Control-Allow-Origin": "*"});
@@ -74,8 +74,7 @@ const handlePut = (parsedURL, response, connection) => {
                 + "answer4 = " + parsedURL.query["answer4"] + ", "
                 + "answerIndex = " + parsedURL.query["answerIndex"] + " "
                 + "WHERE id = " + parsedURL.query["id"];
-        console.log(sql);
-        connection.query(sql, (err, result) => {
+    connection.query(sql, (err, result) => {
         if (err) throw err;
         console.log("1 record updated");
         response.writeHead(200, {'Content-type': 'text/html', "Access-Control-Allow-Origin": "*"});
