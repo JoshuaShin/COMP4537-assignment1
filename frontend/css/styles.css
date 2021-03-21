@@ -1,0 +1,17 @@
+body {
+    background-color: gainsboro;
+    margin: 10vh 10vw;
+    color: black;
+    font-family: monospace;
+    font-size: larger;
+}
+.radio-item {
+    display: flex;
+}
+.questionDiv {
+    margin-bottom: 20px;
+    width: 40vw;
+}
+#quiz-result {
+    margin-bottom: 20px;
+}
