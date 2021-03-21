@@ -13,6 +13,7 @@ http.createServer(function (request, response) {
 
     con.getConnection(function(err, connection) {
         if (err) throw err;
+        console.log("connected");
 
         const createTableQuery = [
             'CREATE TABLE IF NOT EXISTS quiz',
@@ -29,7 +30,6 @@ http.createServer(function (request, response) {
             console.log('Table created');
         });
 
-        console.log("connected");
         let sql = "INSERT INTO quiz(question, answer1, answer2, answer3, answer4, answerIndex) values ("
                     + q.query["question"] + ", "
                     + q.query["answer1"] + ", "
@@ -40,15 +40,14 @@ http.createServer(function (request, response) {
         connection.query(sql, function (err, result) {
             if (err) throw err;
             console.log("1 record inserted");
+            response.writeHead(200, {'Content-type': 'text/html', "Access-Control-Allow-Origin": "*"});
+            response.end(q.query["question"] + " stored in DB.");
         });
         // When done with the connection, release it.
         connection.release();
         // Handle error after the release.
         if (err) throw error;
     });
-        console.log("server received req");
-        response.writeHead(200, {'Content-type': 'text/html', "Access-Control-Allow-Origin": "*"});
-        response.end(q.query["question"] + " stored in DB.");
-    }
+}
 ).listen(process.env.PORT || 8080);
 console.log('listening ...');

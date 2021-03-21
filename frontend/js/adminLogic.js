@@ -58,7 +58,7 @@ function Question(questionNumber, q, a1, a2, a3, a4, answerIndex) {
 
 function getQuestionsFromDB() {
   const xhttp = new XMLHttpRequest();
-  xhttp.open("GET", "https://www.jsshin.com/COMP4537/labs/5/getQuestions/");
+  xhttp.open("GET", "https://www.jsshin.com/COMP4537/labs/quiz/");
   xhttp.send();
   xhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
@@ -84,7 +84,7 @@ function postQuestionsToDB(questions) {
   questions.forEach((question) => {
     const xhttp = new XMLHttpRequest();
     const url =
-      "https://www.jsshin.com/COMP4537/labs/5/app/" +
+      "https://www.jsshin.com/COMP4537/labs/quiz/" +
       `?question="${question.q}"&answer1=${question.a1}&answer2=${question.a2}&answer3=${question.a3}&answer4=${question.a4}&answerIndex=${question.answerIndex}`;
     console.log(url);
     xhttp.open("POST", url);

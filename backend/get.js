@@ -2,7 +2,6 @@ let http = require('http');
 let url = require("url");
 
 http.createServer(function (request, response) {
-    let names = "";
     const mysql = require("mysql");
     const con = mysql.createPool({
         host: "localhost",
@@ -13,12 +12,12 @@ http.createServer(function (request, response) {
 
     con.getConnection(function(err, connection) {
         if (err) throw err;
-
         console.log("connected");
+
         let sql = "SELECT * FROM quiz";
         connection.query(sql, function (err, result) {
             if (err) throw err;
-            names += "[ ";
+            let names = "[ ";
             for (let i = 0; i < result.length; i++) {
                 names += "{";
                 names = names.concat('"questionNumber": "' + result[i].id + '",\n');
@@ -30,6 +29,7 @@ http.createServer(function (request, response) {
                 names = names.concat('"answerIndex": ' + result[i].answerIndex + "\n");
                 names += "},";
             }
+            console.log("Returned quiz questions");
             names = names.slice(0, -1) + "]\n";
             response.writeHead(200, {'Content-type': 'text/html', "Access-Control-Allow-Origin": "*"});
             response.end(names);
